@@ -25,7 +25,7 @@ export default class HelloWorld extends Vue {
     
     hashes.forEach(element => {
 
-      textures.push(PIXI.Texture.from(`http://localhost:666/${imageExtractor(element,45)}`));
+      textures.push(PIXI.Texture.from(`https://rixtrema.net/${imageExtractor(element,45)}`));
 
       // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
       //   // This creates a texture from a 'bunny.png' image

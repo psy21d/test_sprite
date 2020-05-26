@@ -7,84 +7,53 @@
 // https://www.npmjs.com/package/canvas
 
 // https://github.com/bamlab/generator-rn-toolbox/issues/117
+// https://github.com/aheckmann/gm/issues/455
 
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import express from 'express'
+import * as WebSocket from 'ws';
+
 import cors from 'cors'
-import nsg from 'node-sprite-generator'
-//import spritesmith from 'spritesmith';
-import fs from 'fs'
-import Axios from 'axios'
+// import nsg from 'node-sprite-generator'
+// import spritesmith from 'spritesmith';
 
-import { hashes } from '../src/mock/images/imgHash'
-import { imageExtractor } from '../src/common/functions/ex'
-
-let images_source = 'https://rixtrema.net/'
-let hash_links:Array<string> = []
-let local_images: Array<string> = []
-
-hashes.forEach((hash) =>{
-  hash_links.push(`${images_source}${imageExtractor(hash,45)}`)
-  local_images.push(`sources/${hash}.jpg`)
-})
+import { downloadImages } from './functions/downloadImages'
+import { sendImages } from './functions/sendImages'
+import { images_source } from './settings/main'
 
 let port = 666
-console.log( `proxy service started on port ${port}` )
-console.log( `number of hashes: ${hashes.length}` )
+console.log(`proxy service started on port ${port}`)
 
-const app: express.Application = express()
+const app: any = express()
+app.set("port", port)
+
+const server = require('http').createServer(app);
+
+let wss = new WebSocket.Server({ server });
 
 app.use(cors())
 
-app.get('/remake', async (req, res) => {
-  let message = 'remake sprite started now'
-  console.log(message)
-  res.send(message)
-  
-  let downloadPromises: Array<Promise<any>> =[]
+wss.on('connection', (ws: WebSocket) => {
 
-  hash_links.forEach((link, n) => {
-    let file = fs.createWriteStream(`sources/${hashes[n]}.jpg`)
-    
-    let pr = new Promise((resolve, reject) => {
-        Axios({
-          method: 'get',
-          url: link,
-          responseType:'stream'
-        })
-        .then(res => {
-          res.data.pipe(file)
-          console.log(`${hashes[n]} downloaded`);
-          file.on('finish', resolve)
-          file.on('error', reject)
-        })
-        .catch((error) => {
-          reject(error);
-        })
-    })
-    .catch(error => {
-      console.log(`Downloading error: ${error}`);
-      console.log(`Downloaded file: ${link}`);  
-    });
-    downloadPromises.push(pr)
-  })
+  ws.on('message', (message: string) => {
+      try {
+        let event = JSON.parse(message).event
 
-  await Promise.all(downloadPromises)
-
-  console.log(`all files downloaded`)
-
-  nsg({
-      src: local_images,
-      spritePath: 'images/sprite.png',
-      stylesheet: 'sass',
-      stylesheetPath: 'stylus/sprite.styl'
-  }, function (err) {
-      console.log(err);
-      console.log('sprite generated!');
+        // write full router
+        if (event === 'send_images') {
+            sendImages(ws)
+        }
+      } catch(e) {
+        console.log(`Wrong incoming command`)
+      }
   });
+  
+  ws.send('WebSocket server');
 });
 
-app.use('/', createProxyMiddleware({
+app.get('/remake', downloadImages );
+
+app.use('/exeimages', createProxyMiddleware({
     target: images_source,
     secure: false,
     changeOrigin: true,
@@ -92,4 +61,6 @@ app.use('/', createProxyMiddleware({
   })
 );
 
-app.listen(port)
+server.listen(port, () => {
+  console.log(`Server started on port ${server.address().port}`);
+});
