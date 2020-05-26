@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.6",
+    "@types/node-sprite-generator": "^0.10.1",
+    "@types/request": "^2.48.5",
+    "axios": "^0.19.2",
+    "cors": "^2.8.5",
+    "expres": "0.0.5",
+    "express-http-proxy": "^1.6.0",
+    "http-proxy-middleware": "^1.0.4",
+    "node-sprite-generator": "^0.10.2",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
+  }
+}

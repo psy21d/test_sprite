@@ -1,58 +1,63 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import * as PIXI from 'pixi.js'
+
+import { hashes } from '@/mock/images/imgHash'
+import { imageExtractor } from '@/common/functions/ex'
+
+
+@Component
+export default class HelloWorld extends Vue {
+ 
+  app:any = null
+  
+  mounted() {
+    this.app = new PIXI.Application();
+    document.body.appendChild(this.app.view);
+
+    var textures = [];
+    
+    hashes.forEach(element => {
+
+      textures.push(PIXI.Texture.from(`http://localhost:666/${imageExtractor(element,45)}`));
+
+      // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
+      //   // This creates a texture from a 'bunny.png' image
+      //   const loaded = new PIXI.Sprite(resources?.element?.texture);
+
+      //   // Setup the position of the bunny
+      //   loaded.x = this.app.renderer.width / 2;
+      //   loaded.y = this.app.renderer.height / 2;
+
+      //   // Rotate around the center
+      //   loaded.anchor.x = 0.5;
+      //   loaded.anchor.y = 0.5;
+
+      //   // Add the bunny to the scene we are building
+      //   this.app.stage.addChild(loaded);
+
+      //   // Listen for frame updates
+      //   this.app.ticker.add(() => {
+      //       // each frame we spin the bunny around a bit
+      //       loaded.rotation += 0.01;
+      //   });
+      // });
+    })
+  }    
+
+  destroyed() {
+    delete this.app.view
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>
