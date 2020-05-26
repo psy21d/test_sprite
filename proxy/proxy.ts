@@ -1,10 +1,18 @@
 // run: 
 // ts-node proxy.ts
 
+// apt-get install libcairo2-dev libjpeg-dev libgif-dev
+// mac: brew install cairo
+// brew install imagemagick
+// https://www.npmjs.com/package/canvas
+
+// https://github.com/bamlab/generator-rn-toolbox/issues/117
+
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import express from 'express'
 import cors from 'cors'
 import nsg from 'node-sprite-generator'
+//import spritesmith from 'spritesmith';
 import fs from 'fs'
 import Axios from 'axios'
 
@@ -47,7 +55,8 @@ app.get('/remake', async (req, res) => {
         .then(res => {
           res.data.pipe(file)
           console.log(`${hashes[n]} downloaded`);
-          resolve();
+          file.on('finish', resolve)
+          file.on('error', reject)
         })
         .catch((error) => {
           reject(error);
@@ -70,6 +79,7 @@ app.get('/remake', async (req, res) => {
       stylesheet: 'sass',
       stylesheetPath: 'stylus/sprite.styl'
   }, function (err) {
+      console.log(err);
       console.log('sprite generated!');
   });
 });
