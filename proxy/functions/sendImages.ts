@@ -16,6 +16,7 @@ export const sendImages = async (ws: any) => {
 
             ws.send(JSON.stringify ({
                 event:"file",
+                filename: file,
                 content: base64data
               })
             )
