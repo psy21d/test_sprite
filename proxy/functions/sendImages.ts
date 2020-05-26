@@ -1,16 +1,26 @@
 import fs from 'fs'
-import { images_source } from '../settings/main'
+const path = require('path');
+const directoryPath = path.join(__dirname, '/../sources/');
 
 export const sendImages = async (ws: any) => {
 
-    let buff = fs.readFileSync('sources/0a90d24eaf5088ac184ff0366880999b.jpg');
-    let base64data = buff.toString('base64');
+    fs.readdir(directoryPath, function (err, files) {
 
-    ws.send(JSON.stringify ({
-        event:"file",
-        content: base64data
-      })
-    )
-    
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        } 
+
+        files.forEach(function (file) {
+            let buff = fs.readFileSync(directoryPath+file);
+            let base64data = buff.toString('base64');
+
+            ws.send(JSON.stringify ({
+                event:"file",
+                content: base64data
+              })
+            )
+        });
+    });    
+
     console.log('all images sended')
 }
