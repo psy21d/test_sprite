@@ -20,6 +20,7 @@ import cors from 'cors'
 import { downloadImages } from './functions/downloadImages'
 import { sendImages } from './functions/sendImages'
 import { images_source } from './settings/main'
+import { stringify } from 'querystring';
 
 let port = 666
 console.log(`proxy service started on port ${port}`)
@@ -48,7 +49,7 @@ wss.on('connection', (ws: WebSocket) => {
       }
   });
   
-  ws.send('WebSocket server');
+  ws.send(JSON.stringify({event: 'WebSocketStart'}));
 });
 
 app.get('/remake', downloadImages );

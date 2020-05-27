@@ -8,48 +8,85 @@
 import { Component, Vue } from 'vue-property-decorator'
 import * as PIXI from 'pixi.js'
 
-import { hashes } from '@/mock/images/imgHash'
-import { imageExtractor } from '@/common/functions/ex'
-
+type Event = {
+  event: string,
+  filename: string,
+  content: string
+}
 
 @Component
 export default class HelloWorld extends Vue {
  
   app:any = null
+  events: Array<Event> = [];
   
-  mounted() {
+  pixiRender = () => {
     this.app = new PIXI.Application();
     document.body.appendChild(this.app.view);
 
-    var textures = [];
-    
-    hashes.forEach(element => {
+    this.events.forEach(event => {
 
-      textures.push(PIXI.Texture.from(`https://rixtrema.net/${imageExtractor(element,45)}`));
+      //textures.push(PIXI.Texture.from(element));
+
+      const base = new PIXI.BaseTexture(event.content);
+      const texture = new PIXI.Texture(base);
+      const sprite = new PIXI.Sprite(texture);
 
       // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
       //   // This creates a texture from a 'bunny.png' image
       //   const loaded = new PIXI.Sprite(resources?.element?.texture);
 
-      //   // Setup the position of the bunny
-      //   loaded.x = this.app.renderer.width / 2;
-      //   loaded.y = this.app.renderer.height / 2;
+      sprite.x = this.app.renderer.width / 2;
+      sprite.y = this.app.renderer.height / 2;
+      sprite.anchor.x = 0.5;
+      sprite.anchor.y = 0.5;
 
-      //   // Rotate around the center
-      //   loaded.anchor.x = 0.5;
-      //   loaded.anchor.y = 0.5;
+      this.app.stage.addChild(sprite);
 
-      //   // Add the bunny to the scene we are building
-      //   this.app.stage.addChild(loaded);
-
-      //   // Listen for frame updates
-      //   this.app.ticker.add(() => {
-      //       // each frame we spin the bunny around a bit
-      //       loaded.rotation += 0.01;
-      //   });
-      // });
+      this.app.ticker.add(() => {
+        sprite.rotation += 0.01;
+      });
+    
     })
-  }    
+  }
+
+  mounted() {
+    // TODO вынести в настройки окружения
+    let webSocket = new WebSocket('ws://127.0.0.1:666');
+
+    webSocket.onmessage = (content:any) => {
+        //console.log(event.data);
+
+        let event = ''
+
+        try {
+          var incoming = JSON.parse(content.data)
+          event = incoming.event
+        } catch(e) {
+          console.log(e)
+          console.log(content)
+        }
+
+          console.log(event)
+          
+          // make router
+          if (event === "file") {
+            this.events.push(incoming)
+          }
+
+          if (event === "render") {
+            console.log(`render ${this.events.length} elements`)
+            this.pixiRender()
+          }
+
+
+    }
+
+    webSocket.onopen = () => {
+      webSocket.send(JSON.stringify({"event": "send_images"})) 
+    };
+    
+  }
 
   destroyed() {
     delete this.app.view
