@@ -6,6 +6,7 @@ const directoryPath = path.join(__dirname, '/../sources/');
 import { images_source } from '../settings/main'
 import { imageExtractor } from '../../src/common/functions/ex'
 import { hashes } from '../../src/mock/images/imgHash'
+import { Stream } from 'stream';
 
 // https://github.com/nodejs/node-v0.x-archive/issues/5545
 
@@ -44,8 +45,9 @@ export const downloadImages = async (req:any, res:any) => {
   
     let for_download = () => {
         dlinks.forEach((link, n) => {
-        let file = fs.createWriteStream(`sources/${hashes[n]}.jpg`)
         
+        let file: fs.WriteStream
+
         let pr = new Promise((resolve, reject) => {
             Axios({
                 method: 'get',
@@ -53,10 +55,17 @@ export const downloadImages = async (req:any, res:any) => {
                 responseType:'stream',
             })
             .then(res => {
+                file = fs.createWriteStream(`sources/${hashes[n]}.jpg`)
                 res.data.pipe(file)
                 console.log(`${hashes[n]} downloaded`);
-                file.on('finish', resolve)
-                file.on('error', reject)
+                file.on('finish', () => {
+                    resolve()
+                    file.close()
+                })
+                file.on('error', () => {
+                    reject()
+                    file.close()
+                })
             })
             .catch((error) => {
                 catch_links.push(link)
