@@ -1,7 +1,21 @@
 <template>
+ <div class="container">
   <div class="hello">
-    
+    <div class="header">
+      Фото
+    </div>
+    <div class="year">
+      <div class="year--number">
+        2010—2020
+      </div>
+      <div class="year--town">
+        Санкт-Петербург
+      </div>
+    </div>
+    <div class="viewer" ref="viewer">
+    </div>
   </div>
+ </div>
 </template>
 
 <script lang="ts">
@@ -14,19 +28,27 @@ type Event = {
   content: string
 }
 
-@Component
+@Component({
+  data() {
+    return {
+      app: new PIXI.Application({
+        transparent:true,
+        width:360,
+        height:300
+      })
+    }
+  }
+})
 export default class HelloWorld extends Vue {
  
   app:any = null
   events: Array<Event> = [];
-  
-  pixiRender = () => {
-    this.app = new PIXI.Application();
-    document.body.appendChild(this.app.view);
 
-    this.events.forEach(event => {
+  pixiRender() {
 
-      //textures.push(PIXI.Texture.from(element));
+    // TODO remove viewer properly
+
+    this.events.forEach((event,n) => {
 
       const base = new PIXI.BaseTexture(event.content);
       const texture = new PIXI.Texture(base);
@@ -35,24 +57,31 @@ export default class HelloWorld extends Vue {
       // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
       //   // This creates a texture from a 'bunny.png' image
       //   const loaded = new PIXI.Sprite(resources?.element?.texture);
+      
+      let x = (this.app.renderer.width/32) * ( n % 32)
+      let y = Math.floor(n / 32) * 10
 
-      sprite.x = this.app.renderer.width / 2;
-      sprite.y = this.app.renderer.height / 2;
-      sprite.anchor.x = 0.5;
-      sprite.anchor.y = 0.5;
+      sprite.x = x;
+      sprite.y = y;
+      sprite.width = 11.2;
+      sprite.height = 10;
+      sprite.anchor.x = 0;
+      sprite.anchor.y = 0;
 
       this.app.stage.addChild(sprite);
 
-      this.app.ticker.add(() => {
-        sprite.rotation += 0.01;
-      });
+      // this.app.ticker.add(() => {
+      //   sprite.rotation += 0.01;
+      // });
     
     })
   }
 
   mounted() {
     // TODO вынести в настройки окружения
-    let webSocket = new WebSocket('ws://127.0.0.1:666');
+    let webSocket = new WebSocket('ws://192.168.0.145:666');
+
+    (this.$refs.viewer as HTMLElement).appendChild(this.app.view)
 
     webSocket.onmessage = (content:any) => {
         //console.log(event.data);
@@ -88,13 +117,40 @@ export default class HelloWorld extends Vue {
     
   }
 
-  destroyed() {
-    delete this.app.view
-  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+}
+.hello {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.header{
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  font-size: 40px;
+  font-weight: bold;
+}
+.year--number {
+  margin-top:20px;
+  padding-left: 20px;
+  margin-bottom:10px;
+  font-size: 30px;
+  font-weight: bold;
+}
+.year--town {
+  padding-left: 20px;
+  margin-bottom:10px;
+  font-weight: 100;
+  font-size: 20px;
+  color: #cccccc;
+}
 
 </style>

@@ -17,5 +17,8 @@ export default class App extends Vue {}
 </script>
 
 <style>
-
+body {
+  margin: 0!important;
+  font-family: Arial, Helvetica, sans-serif;
+}
 </style>
