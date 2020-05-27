@@ -76,11 +76,6 @@ export default class HelloWorld extends Vue {
       const sprite = new PIXI.Sprite(texture);
       const sprite2 = new PIXI.Sprite(texture);
       
-
-      // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
-      //   // This creates a texture from a 'bunny.png' image
-      //   const loaded = new PIXI.Sprite(resources?.element?.texture);
-      
       let x = (this.app.renderer.width/32) * ( n % 32)
       let y = Math.floor(n / 32) * 10
 
@@ -156,7 +151,6 @@ export default class HelloWorld extends Vue {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .container {
   display: flex;
