@@ -14,6 +14,18 @@
     </div>
     <div class="viewer" ref="viewer">
     </div>
+
+    <div class="year">
+      <div class="year--number">
+        2020—2030
+      </div>
+      <div class="year--town">
+        Москва
+      </div>
+    </div>
+    <div class="viewer2" ref="viewer2">
+    </div>
+
   </div>
  </div>
 </template>
@@ -35,13 +47,22 @@ type Event = {
         transparent:true,
         width:360,
         height:300
+      }),
+
+      app2: new PIXI.Application({
+        transparent:true,
+        width:360,
+        height:300
       })
+      
     }
   }
 })
 export default class HelloWorld extends Vue {
  
   app:any = null
+  app2:any = null
+  
   events: Array<Event> = [];
 
   pixiRender() {
@@ -53,6 +74,8 @@ export default class HelloWorld extends Vue {
       const base = new PIXI.BaseTexture(event.content);
       const texture = new PIXI.Texture(base);
       const sprite = new PIXI.Sprite(texture);
+      const sprite2 = new PIXI.Sprite(texture);
+      
 
       // this.app.loader.add(element, `http://localhost:666/${imageExtractor(element)}`).load((loader:any, resources:any) => {
       //   // This creates a texture from a 'bunny.png' image
@@ -68,8 +91,18 @@ export default class HelloWorld extends Vue {
       sprite.anchor.x = 0;
       sprite.anchor.y = 0;
 
-      this.app.stage.addChild(sprite);
+      sprite2.x = x;
+      sprite2.y = y;
+      sprite2.width = 11.2;
+      sprite2.height = 10;
+      sprite2.anchor.x = 0;
+      sprite2.anchor.y = 0;
 
+
+      this.app.stage.addChild(sprite);
+      
+      this.app2.stage.addChild(sprite2);
+    
       // this.app.ticker.add(() => {
       //   sprite.rotation += 0.01;
       // });
@@ -81,7 +114,10 @@ export default class HelloWorld extends Vue {
     // TODO вынести в настройки окружения
     let webSocket = new WebSocket('ws://192.168.0.145:666');
 
-    (this.$refs.viewer as HTMLElement).appendChild(this.app.view)
+    (this.$refs.viewer2 as HTMLElement).appendChild(this.app2.view);
+    (this.$refs.viewer as HTMLElement).appendChild(this.app.view);
+    
+    
 
     webSocket.onmessage = (content:any) => {
         //console.log(event.data);
